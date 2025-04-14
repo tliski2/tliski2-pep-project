@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 public class AccountDAO {
 
-    /*
+    /**
      * Attempts to insert new user account into the database
      * 
      * @param account to be inserted
@@ -35,7 +35,7 @@ public class AccountDAO {
 
     }
 
-    /*
+    /**
      * Utility to check if an account already exists (by username) before registering a new one
      * 
      * @param username to check if it already exists
