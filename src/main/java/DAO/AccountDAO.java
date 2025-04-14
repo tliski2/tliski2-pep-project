@@ -2,10 +2,12 @@ package DAO;
 
 import Model.Account;
 import Util.ConnectionUtil;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Account DAO class to handle the user login/registration data from the front-end and interact with the database
@@ -25,13 +27,21 @@ public class AccountDAO {
         Connection connection = ConnectionUtil.getConnection();
         String sql = "INSERT INTO account (username, password) VALUES (?, ?)";
 
-        try(PreparedStatement ps = connection.prepareStatement(sql)) {
+        try(PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, account.getUsername());
             ps.setString(2, account.getPassword());
 
-            int rows = ps.executeUpdate();
-            return rows > 0 ? account : null;
+            ps.executeUpdate();
+            
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if(rs.next()) {
+                    int account_id = (int) rs.getLong(1);
+                    return new Account(account_id, account.getUsername(), account.getPassword());
+                }
+            }
+
         }
+        return null;
 
     }
 
