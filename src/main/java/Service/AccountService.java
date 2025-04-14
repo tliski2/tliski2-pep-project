@@ -1,6 +1,9 @@
 package Service;
 
 import Model.Account;
+
+import java.sql.SQLException;
+
 import DAO.AccountDAO;
 
 /**
@@ -14,6 +17,14 @@ public class AccountService {
     }
 
     public Account addAccount(Account account) {
-        
+        try {
+            if(!account.getUsername().isBlank() && account.getPassword().length() >= 4 && !accountDAO.accountExists(account.getUsername())) {
+                return accountDAO.insertAccount(account);
+            }
+        }
+        catch(SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 }
