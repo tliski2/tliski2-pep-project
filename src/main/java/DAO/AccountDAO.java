@@ -12,7 +12,6 @@ import java.sql.Statement;
 /**
  * Account DAO class to handle the user login/registration data from the front-end and interact with the database
  */
-
 public class AccountDAO {
 
     /**
