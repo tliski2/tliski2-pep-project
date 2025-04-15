@@ -30,7 +30,8 @@ public class SocialMediaController {
      */
     public Javalin startAPI() {
         Javalin app = Javalin.create();
-        app.post("/register", this::postAccountHandler);
+        app.post("/register", this::postAccountCreationHandler);
+        app.post("/login", this::postAccountLoginHandler);
 
         app.exception(SQLException.class, this::databaseExceptionHandler);
         app.exception(InputException.class, this::invalidInputHandler);
@@ -41,13 +42,33 @@ public class SocialMediaController {
 
     /**
      * Handler to post a new account.
-     * @param context The Javalin Context object manages information about both the HTTP request and response.
+     * @param ctx The Javalin Context object manages information about both the HTTP request and response.
+     * @throws JsonProcessingException
+     * @throws SQLException
      */
-    private void postAccountHandler(Context ctx) throws JsonProcessingException, SQLException{
+    private void postAccountCreationHandler(Context ctx) throws JsonProcessingException, SQLException{
         ObjectMapper om = new ObjectMapper();
         Account accountToAdd = om.readValue(ctx.body(), Account.class);
         Account addedAccount = accountService.addAccount(accountToAdd);
         ctx.status(200).json(addedAccount);
+    }
+
+    /**
+     * Handler to login account
+     * @param ctx The Javalin Context object manages information about both the HTTP request and response.
+     * @throws JsonProcessingException
+     * @throws SQLException
+     */
+    private void postAccountLoginHandler(Context ctx) throws JsonProcessingException, SQLException {
+        ObjectMapper om = new ObjectMapper();
+        Account accountToLogin = om.readValue(ctx.body(), Account.class);
+        Account loggedIn = accountService.getAccount(accountToLogin);
+        if(loggedIn != null) {
+            ctx.status(200).json(loggedIn);
+        }
+        else {
+            ctx.status(401);
+        }
     }
 
     /**
@@ -78,9 +99,4 @@ public class SocialMediaController {
     private void genericExceptionHandler(Exception e, Context ctx) {
         ctx.result("Error occured: " + e.getMessage());
     }
-
-
-
-
-
 }

@@ -46,6 +46,32 @@ public class AccountDAO {
     }
 
     /**
+     * Attempts to "log in" by checking database for the given account details
+     * 
+     * @param account information given by the client to "log in"
+     * @return logged in account object if it exists
+     * @throws SQLException
+     */
+    public Account getAccount(Account account) throws SQLException {
+        Connection connection = ConnectionUtil.getConnection();
+        String sql = "SELECT * FROM account WHERE username = ? AND password = ?";
+
+        try(PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, account.getUsername());
+            ps.setString(2, account.getPassword());
+
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()) {
+                Account loggedIn = new Account(rs.getInt("account_id"), 
+                                                rs.getString("username"), 
+                                                rs.getString("password"));
+                return loggedIn;
+            }
+            return null;
+        }
+    }
+
+    /**
      * Utility to check if an account already exists (by username) before registering a new one
      * 
      * @param username to check if it already exists
@@ -54,7 +80,7 @@ public class AccountDAO {
      */
     public boolean accountExists(String username) throws SQLException {
         Connection connection = ConnectionUtil.getConnection();
-        String sql = "SELECT 1 FROM account WHERE username = ?";
+        String sql = "SELECT * FROM account WHERE username = ?";
 
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, username);
