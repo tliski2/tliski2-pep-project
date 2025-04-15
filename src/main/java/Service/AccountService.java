@@ -1,10 +1,9 @@
 package Service;
 
 import Model.Account;
-
-import java.sql.SQLException;
-
 import DAO.AccountDAO;
+import Exception.InputException;
+import java.sql.SQLException;
 
 /**
  * Service layer class to handle the business logic of user interactions (login/register) between the web layer (AccountController) and the data persistence layer (AccountDAO)
@@ -13,18 +12,24 @@ public class AccountService {
     private AccountDAO accountDAO;
 
     public AccountService(){
-        accountDAO = new AccountDAO();
+        this.accountDAO = new AccountDAO();
     }
 
-    public Account addAccount(Account account) {
-        try {
-            if(!account.getUsername().isBlank() && account.getPassword().length() >= 4 && !accountDAO.accountExists(account.getUsername())) {
-                return accountDAO.insertAccount(account);
-            }
+    /**
+     * Verifies correct user input and calls the AccountDAO to add the new account
+     * @param account an Account object
+     * @return created account if successful
+     */
+    public Account addAccount(Account account) throws SQLException{
+        if(account.getUsername().isBlank()) {
+            throw new InputException("Username must have at least one character.");
         }
-        catch(SQLException e) {
-            System.out.println(e.getMessage());
+        if (account.getPassword().length() < 4) {
+            throw new InputException("Password must be 4 or more characters long.");
         }
-        return null;
+        if (accountDAO.accountExists(account.getUsername())) {
+            throw new InputException("Username already exists.");
+        }
+        return accountDAO.insertAccount(account);
     }
 }

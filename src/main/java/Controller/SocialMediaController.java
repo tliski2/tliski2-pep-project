@@ -3,6 +3,8 @@ package Controller;
 import Model.Account;
 import Model.Message;
 import Service.AccountService;
+import Exception.InputException;
+import java.sql.SQLException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,6 +32,10 @@ public class SocialMediaController {
         Javalin app = Javalin.create();
         app.post("/register", this::postAccountHandler);
 
+        app.exception(SQLException.class, this::databaseExceptionHandler);
+        app.exception(InputException.class, this::invalidInputHandler);
+        app.exception(Exception.class, this::genericExceptionHandler);
+
         return app;
     }
 
@@ -37,20 +43,44 @@ public class SocialMediaController {
      * Handler to post a new account.
      * @param context The Javalin Context object manages information about both the HTTP request and response.
      */
-    private void postAccountHandler(Context ctx) throws JsonProcessingException{
+    private void postAccountHandler(Context ctx) throws JsonProcessingException, SQLException{
         ObjectMapper om = new ObjectMapper();
         Account accountToAdd = om.readValue(ctx.body(), Account.class);
-
         Account addedAccount = accountService.addAccount(accountToAdd);
-        if(addedAccount != null) {
-            ctx.json(om.writeValueAsString(addedAccount));
-        }
-        else {
-            ctx.status(400);
-        }
-
-
+        ctx.status(200).json(addedAccount);
     }
+
+    /**
+     * Handler for database exceptions
+     * @param e the SQLException thrown by the DAO/Service layer
+     * @param ctx HTTP context object for sending responses to the client
+     */
+    private void databaseExceptionHandler(SQLException e, Context ctx) {
+        ctx.status(400).result("Error with database.");
+        e.printStackTrace();
+    }
+    
+    /**
+     * Handler for user input exceptions
+     * @param e the InputException thrown by the service layer for invalid user input
+     * @param ctx HTTP context object for sending responses to the client
+     */
+    private void invalidInputHandler(InputException e, Context ctx) {
+        ctx.status(400);
+        System.out.println(e.getMessage());
+    }
+
+    /**
+     * Handler for all other exceptions
+     * @param e the Exception thrown
+     * @param ctx HTTP context object for sending responses to the client
+     */
+    private void genericExceptionHandler(Exception e, Context ctx) {
+        ctx.result("Error occured: " + e.getMessage());
+    }
+
+
+
 
 
 }
