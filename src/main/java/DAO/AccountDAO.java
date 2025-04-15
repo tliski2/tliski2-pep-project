@@ -89,5 +89,25 @@ public class AccountDAO {
         }
 
     }
+
+    /**
+     * Utility to check if an account exists (by id)
+     * 
+     * @param account_id to check if it exists
+     * @return true if account exists, false if not
+     * @throws SQLException
+     */
+    public boolean accountExists(int account_id) throws SQLException {
+        Connection connection = ConnectionUtil.getConnection();
+        String sql = "SELECT * FROM account WHERE account_id = ?";
+
+        try(PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, account_id);
+
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        }
+
+    }
     
 }

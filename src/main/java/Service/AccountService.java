@@ -5,6 +5,8 @@ import DAO.AccountDAO;
 import Exception.InputException;
 import java.sql.SQLException;
 
+import org.eclipse.jetty.http.HttpTester.Input;
+
 /**
  * Service layer class to handle the business logic of user interactions (login/register) between the web layer (AccountController) and the data persistence layer (AccountDAO)
  */
@@ -16,9 +18,10 @@ public class AccountService {
     }
 
     /**
-     * Verifies correct user input and calls the AccountDAO to add the new account
+     * Verifies correct user input and calls the AccountDAO to insert new account
+     * 
      * @param account an Account object
-     * @return created account if successful
+     * @return created account if successful, null if not
      */
     public Account addAccount(Account account) throws SQLException {
         if(account.getUsername().isBlank()) {
@@ -35,6 +38,7 @@ public class AccountService {
 
     /**
      * Verifies account is valid and calls the AccountDAO to retrieve existing account
+     * 
      * @param account information given by the client to "log in"
      * @return existing account if found, null if not
      * @throws SQLException

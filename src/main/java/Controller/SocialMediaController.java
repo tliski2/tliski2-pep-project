@@ -1,10 +1,10 @@
 package Controller;
 
-import Model.Account;
-import Model.Message;
-import Service.AccountService;
+import Model.*;
+import Service.*;
 import Exception.InputException;
 import java.sql.SQLException;
+import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,9 +18,11 @@ import io.javalin.http.Context;
  */
 public class SocialMediaController {
     AccountService accountService;
+    MessageService messageService;
 
     public SocialMediaController() {
         this.accountService = new AccountService();
+        this.messageService = new MessageService();
     }
 
     /**
@@ -32,6 +34,9 @@ public class SocialMediaController {
         Javalin app = Javalin.create();
         app.post("/register", this::postAccountCreationHandler);
         app.post("/login", this::postAccountLoginHandler);
+
+        app.post("/messages", this::postMessageHandler);
+        app.get("/messages", this::getAllMessagesHandler);
 
         app.exception(SQLException.class, this::databaseExceptionHandler);
         app.exception(InputException.class, this::invalidInputHandler);
@@ -71,13 +76,25 @@ public class SocialMediaController {
         }
     }
 
+    private void postMessageHandler(Context ctx) throws JsonProcessingException, SQLException {
+        ObjectMapper om = new ObjectMapper();
+        Message messageToAdd = om.readValue(ctx.body(), Message.class);
+        Message addedMessage = messageService.addMessage(messageToAdd);
+        ctx.status(200).json(addedMessage);
+    }
+
+    private void getAllMessagesHandler(Context ctx) throws SQLException {
+        List<Message> messages = messageService.getAllMessages();
+        ctx.json(messages);
+    }
+
     /**
      * Handler for database exceptions
      * @param e the SQLException thrown by the DAO/Service layer
      * @param ctx HTTP context object for sending responses to the client
      */
     private void databaseExceptionHandler(SQLException e, Context ctx) {
-        ctx.status(400).result("Error with database.");
+        ctx.status(500).result("Error with database.");
         e.printStackTrace();
     }
     
