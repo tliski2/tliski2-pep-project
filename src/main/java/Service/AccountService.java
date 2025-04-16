@@ -5,8 +5,6 @@ import DAO.AccountDAO;
 import Exception.InputException;
 import java.sql.SQLException;
 
-import org.eclipse.jetty.http.HttpTester.Input;
-
 /**
  * Service layer class to handle the business logic of user interactions (login/register) between the web layer (AccountController) and the data persistence layer (AccountDAO)
  */

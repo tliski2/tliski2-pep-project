@@ -5,6 +5,7 @@ import Service.*;
 import Exception.InputException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +40,9 @@ public class SocialMediaController {
         app.get("/messages", this::getAllMessagesHandler);
         app.get("/messages/{message_id}", this::getMessageByIdHandler);
         app.delete("/messages/{message_id}", this::deleteMessageByIdHandler);
+        app.patch("messages/{message_id}", this::updateMessageByIdHandler);
+        
+        app.get("accounts/{account_id}/messages", this::getMessagesByUserHandler);
 
         app.exception(SQLException.class, this::databaseExceptionHandler);
         app.exception(InputException.class, this::invalidInputHandler);
@@ -122,6 +126,30 @@ public class SocialMediaController {
         }
     }
 
+    private void getMessagesByUserHandler(Context ctx) throws SQLException {
+        int account_id = Integer.parseInt(ctx.pathParam("account_id"));
+        List<Message> messages = messageService.getMessagesByUser(account_id);
+        ctx.status(200).json(messages);
+    }
+
+    /**
+     * Handler to update an existing message based on id
+     * 
+     * @param ctx The Javalin Context object manages information about both the HTTP request and response.
+     * @throws SQLException
+     * @throws JsonProcessingException
+     */
+    private void updateMessageByIdHandler(Context ctx) throws SQLException, JsonProcessingException {
+        int message_id = Integer.parseInt(ctx.pathParam("message_id"));
+        
+        ObjectMapper om = new ObjectMapper();
+        Map<String, String> body = om.readValue(ctx.body(), Map.class);
+        String updated_text = body.get("message_text");
+
+        Message updatedMessage = messageService.updateMessageById(message_id, updated_text);
+        ctx.status(200).json(updatedMessage);
+    }
+
     /**
      * Handler to delete a specific message based on id
      * 
@@ -146,7 +174,7 @@ public class SocialMediaController {
      * @param ctx The Javalin Context object manages information about both the HTTP request and response.
      */
     private void databaseExceptionHandler(SQLException e, Context ctx) {
-        ctx.status(500).result("Error with database.");
+        ctx.status(400).result("Error with database.");
         e.printStackTrace();
     }
     
