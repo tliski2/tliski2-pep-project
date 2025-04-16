@@ -38,6 +38,7 @@ public class SocialMediaController {
         app.post("/messages", this::postMessageHandler);
         app.get("/messages", this::getAllMessagesHandler);
         app.get("/messages/{message_id}", this::getMessageByIdHandler);
+        app.delete("/messages/{message_id}", this::deleteMessageByIdHandler);
 
         app.exception(SQLException.class, this::databaseExceptionHandler);
         app.exception(InputException.class, this::invalidInputHandler);
@@ -107,7 +108,7 @@ public class SocialMediaController {
     /**
      * Handler to retrieve a specific message based on id
      * 
-     * @param ctx
+     * @param ctx The Javalin Context object manages information about both the HTTP request and response.
      * @throws SQLException
      */
     private void getMessageByIdHandler(Context ctx) throws SQLException {
@@ -117,6 +118,23 @@ public class SocialMediaController {
             ctx.status(200).json(message);
         }
         else{
+            ctx.status(200);
+        }
+    }
+
+    /**
+     * Handler to delete a specific message based on id
+     * 
+     * @param ctx The Javalin Context object manages information about both the HTTP request and response.
+     * @throws SQLException
+     */
+    private void deleteMessageByIdHandler(Context ctx) throws SQLException {
+        int message_id = Integer.parseInt(ctx.pathParam("message_id"));
+        Message message = messageService.deleteMessageById(message_id);
+        if(message != null) {
+            ctx.status(200).json(message);
+        }
+        else {
             ctx.status(200);
         }
     }

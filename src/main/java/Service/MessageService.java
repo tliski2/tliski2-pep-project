@@ -48,11 +48,26 @@ public class MessageService {
      * Retrieves a specific message by id using messageDAO
      * 
      * @param message_id
-     * @return message with the given id if found
+     * @return message with the given id if found, null if not
      * @throws SQLException
      */
     public Message getMessageById(int message_id) throws SQLException {
         return messageDAO.getMessageById(message_id);
+    }
+
+    /**
+     * Deletes a specific message by id using messageDAO
+     * 
+     * @param message_id
+     * @return deleted message if it existed, null if not
+     * @throws SQLException
+     */
+    public Message deleteMessageById(int message_id) throws SQLException {
+        Message message = messageDAO.getMessageById(message_id);
+        if(message != null) {
+            messageDAO.deleteMessageById(message_id);
+        }
+        return message;
     }
 
     

@@ -11,8 +11,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo.None;
-
 /**
  * Message DAO class to handle the user message data from the front-end and interact with the database
  */
@@ -42,6 +40,13 @@ public class MessageDAO {
         }
     }
 
+    /**
+     * Retrieves a specific message based on the id 
+     *
+     * @param message_id
+     * @return Message if found, null if not
+     * @throws SQLException
+     */
     public Message getMessageById(int message_id) throws SQLException {
         Connection connection = ConnectionUtil.getConnection();
         String sql = "SELECT * FROM message WHERE message_id = ?";
@@ -90,6 +95,19 @@ public class MessageDAO {
         return null;
     }
 
+    /**
+     * Deletes a specific message based on the id
+     * 
+     * @param message_id
+     * @throws SQLException
+     */
+    public void deleteMessageById(int message_id) throws SQLException {
+        Connection connection = ConnectionUtil.getConnection();
+        String sql = "DELETE FROM message WHERE message_id = ?";
 
-    
+        try(PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, message_id);
+            ps.executeUpdate();
+        }
+    } 
 }
