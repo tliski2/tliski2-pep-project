@@ -147,7 +147,7 @@ public class MessageDAO {
     }
 
     /**
-     * Deletes a specific message based on the id
+     * Attempts to delete a specific message based on the id
      * 
      * @param message_id
      * @throws SQLException
