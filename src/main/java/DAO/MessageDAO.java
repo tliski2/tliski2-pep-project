@@ -66,6 +66,13 @@ public class MessageDAO {
         }
     }
 
+    /**
+     * Retrieves all messages by the given account from the database
+     * 
+     * @param account_id
+     * @return List of all messages tied to the given account_id
+     * @throws SQLException
+     */
     public List<Message> getMessagesByUser(int account_id) throws SQLException {
         Connection connection = ConnectionUtil.getConnection();
         String sql = "SELECT * FROM message WHERE posted_by = ?";
@@ -73,7 +80,7 @@ public class MessageDAO {
 
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, account_id);
-            
+
             ResultSet rs = ps.executeQuery();
             while(rs.next()) {
                 Message message = new Message(rs.getInt("message_id"),

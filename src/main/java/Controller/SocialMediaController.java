@@ -126,6 +126,12 @@ public class SocialMediaController {
         }
     }
 
+    /**
+     * Handler to retrieve messages for a given user based on their account_id
+     * 
+     * @param ctx The Javalin Context object manages information about both the HTTP request and response.
+     * @throws SQLException
+     */
     private void getMessagesByUserHandler(Context ctx) throws SQLException {
         int account_id = Integer.parseInt(ctx.pathParam("account_id"));
         List<Message> messages = messageService.getMessagesByUser(account_id);
