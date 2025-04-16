@@ -37,6 +37,7 @@ public class SocialMediaController {
 
         app.post("/messages", this::postMessageHandler);
         app.get("/messages", this::getAllMessagesHandler);
+        app.get("/messages/{message_id}", this::getMessageByIdHandler);
 
         app.exception(SQLException.class, this::databaseExceptionHandler);
         app.exception(InputException.class, this::invalidInputHandler);
@@ -47,6 +48,7 @@ public class SocialMediaController {
 
     /**
      * Handler to post a new account.
+     * 
      * @param ctx The Javalin Context object manages information about both the HTTP request and response.
      * @throws JsonProcessingException
      * @throws SQLException
@@ -60,6 +62,7 @@ public class SocialMediaController {
 
     /**
      * Handler to login account
+     * 
      * @param ctx The Javalin Context object manages information about both the HTTP request and response.
      * @throws JsonProcessingException
      * @throws SQLException
@@ -76,6 +79,13 @@ public class SocialMediaController {
         }
     }
 
+    /**
+     * Handler to post a new message
+     * 
+     * @param ctx The Javalin Context object manages information about both the HTTP request and response.
+     * @throws JsonProcessingException
+     * @throws SQLException
+     */
     private void postMessageHandler(Context ctx) throws JsonProcessingException, SQLException {
         ObjectMapper om = new ObjectMapper();
         Message messageToAdd = om.readValue(ctx.body(), Message.class);
@@ -83,15 +93,39 @@ public class SocialMediaController {
         ctx.status(200).json(addedMessage);
     }
 
+    /**
+     * Handler to retrieve all messages
+     * 
+     * @param ctx The Javalin Context object manages information about both the HTTP request and response.
+     * @throws SQLException
+     */
     private void getAllMessagesHandler(Context ctx) throws SQLException {
         List<Message> messages = messageService.getAllMessages();
-        ctx.json(messages);
+        ctx.status(200).json(messages);
+    }
+
+    /**
+     * Handler to retrieve a specific message based on id
+     * 
+     * @param ctx
+     * @throws SQLException
+     */
+    private void getMessageByIdHandler(Context ctx) throws SQLException {
+        int message_id = Integer.parseInt(ctx.pathParam("message_id"));
+        Message message = messageService.getMessageById(message_id);
+        if(message != null) {
+            ctx.status(200).json(message);
+        }
+        else{
+            ctx.status(200);
+        }
     }
 
     /**
      * Handler for database exceptions
+     * 
      * @param e the SQLException thrown by the DAO/Service layer
-     * @param ctx HTTP context object for sending responses to the client
+     * @param ctx The Javalin Context object manages information about both the HTTP request and response.
      */
     private void databaseExceptionHandler(SQLException e, Context ctx) {
         ctx.status(500).result("Error with database.");
@@ -100,8 +134,9 @@ public class SocialMediaController {
     
     /**
      * Handler for user input exceptions
+     * 
      * @param e the InputException thrown by the service layer for invalid user input
-     * @param ctx HTTP context object for sending responses to the client
+     * @param ctx The Javalin Context object manages information about both the HTTP request and response.
      */
     private void invalidInputHandler(InputException e, Context ctx) {
         ctx.status(400);
@@ -110,8 +145,9 @@ public class SocialMediaController {
 
     /**
      * Handler for all other exceptions
+     * 
      * @param e the Exception thrown
-     * @param ctx HTTP context object for sending responses to the client
+     * @param ctx The Javalin Context object manages information about both the HTTP request and response.
      */
     private void genericExceptionHandler(Exception e, Context ctx) {
         ctx.result("Error occured: " + e.getMessage());

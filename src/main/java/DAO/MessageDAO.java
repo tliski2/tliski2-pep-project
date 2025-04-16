@@ -11,6 +11,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.None;
+
 /**
  * Message DAO class to handle the user message data from the front-end and interact with the database
  */
@@ -22,7 +24,7 @@ public class MessageDAO {
      * @return List of all messages
      * @throws SQLException
      */
-    public List<Message> getAllMessages() throws SQLException{
+    public List<Message> getAllMessages() throws SQLException {
         Connection connection = ConnectionUtil.getConnection();
         String sql = "SELECT * FROM message";
         List<Message> messages = new ArrayList<>();
@@ -37,6 +39,25 @@ public class MessageDAO {
                 messages.add(message);
             }
             return messages;
+        }
+    }
+
+    public Message getMessageById(int message_id) throws SQLException {
+        Connection connection = ConnectionUtil.getConnection();
+        String sql = "SELECT * FROM message WHERE message_id = ?";
+
+        try(PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, message_id);
+
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()) {
+                Message message = new Message(rs.getInt("message_id"),
+                                            rs.getInt("posted_by"),
+                                            rs.getString("message_text"),
+                                            rs.getLong("time_posted_epoch"));
+                return message;
+            }
+            return null;
         }
     }
 

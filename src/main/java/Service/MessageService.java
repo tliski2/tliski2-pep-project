@@ -38,9 +38,21 @@ public class MessageService {
      * Retrieves all messages from the database using messageDAO
      * 
      * @return List of all messages
+     * @throws SQLException
      */
     public List<Message> getAllMessages() throws SQLException{
         return messageDAO.getAllMessages();
+    }
+
+    /**
+     * Retrieves a specific message by id using messageDAO
+     * 
+     * @param message_id
+     * @return message with the given id if found
+     * @throws SQLException
+     */
+    public Message getMessageById(int message_id) throws SQLException {
+        return messageDAO.getMessageById(message_id);
     }
 
     
